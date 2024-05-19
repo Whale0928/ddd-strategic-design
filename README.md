@@ -154,7 +154,6 @@ docker compose -p kitchenpos up -d
 | 한글명         | 영문명              | 설명                  |
 |-------------|------------------|---------------------|
 | 배달 주문       | delivery order   | 고객이 요청한 배달 주문       |
-| 배달 주문       | delivery order   | 고객이 배달 주문한 주문.      | 
 | 배달 주소       | delivery address | 고객이 배달 받을 주소.       | 
 | 배달 주문 접수 대기 | waiting          | 매장이 주문을 접수하기 전 상태   | 
 | 배달 주문 접수    | accepted         | 배달 주문을 접수한 상태.      |
