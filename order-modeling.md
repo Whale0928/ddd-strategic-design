@@ -14,7 +14,7 @@ stateDiagram-v2
     table --> product: 상품 등록
     product --> purgomalum: 비속어 검사
     purgomalum --> new_product
-    table --> product : 상품 가격 변경
+    table --> product: 상품 가격 변경
     product --> change_price_product
     product --> menu: 가격 비교
     menu --> hide_menu
@@ -47,7 +47,7 @@ stateDiagram-v2
     table --> menu: 메뉴 등록
     menu --> purgomalum: 비속어 검사
     purgomalum --> new_menu
-    table --> menu : 메뉴 가격 변경    
+    table --> menu: 메뉴 가격 변경
     menu --> menu: 가격 비교
     menu --> hide_menu
     menu --> change_price_menu
