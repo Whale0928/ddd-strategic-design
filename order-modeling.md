@@ -1,3 +1,58 @@
+## 모델링
+
+### 상품
+
+- `product`은 식별자와 이름, 가격을 가진다.
+- `name`은 외부솔루션 `PurgomalumClient`을 통해 비속어 검사를 통과한 이름만 가질 수 있다.
+- `price`은 0원 이상만 등록 가능하다.
+- `product`은 `price` 0원 이상인 가격으로 변경한다.
+- `price`을 변경할 때 해당 상품이 속한 메뉴들의 가격 비교 후 메뉴 가격보다 단일 상품들의 총금액이 더 비쌀 경우 해당 메뉴은 자동으로 숨김 상태로 변경된다.
+
+```mermaid
+stateDiagram-v2
+    table: admin
+    table --> product: 상품 등록
+    product --> purgomalum: 비속어 검사
+    purgomalum --> new_product
+    table --> product : 상품 가격 변경
+    product --> change_price_product
+    product --> menu: 가격 비교
+    menu --> hide_menu
+```
+
+### 메뉴그룹
+
+- `menu_group`은 식별자와 이름을 가진다.
+- `name`은 빈값이 아닌 이름만 가질 수 있다.
+
+```mermaid
+stateDiagram-v2
+    table: admin
+    table --> menu_group: 메뉴 그룹 등록
+    menu_group --> new_menu_group
+```
+
+### 메뉴
+
+- `menu`은 식별자와 이름, 가격, `menu_group`, 상태(노출/숨김), 메뉴상품들을 가진다.
+- `name`은 외부솔루션 `PurgomalumClient`을 통해 비속어 검사를 통과한 이름만 가질 수 있다.
+- `price`은 0원 이상만 등록 가능하다.
+- `menu`은 `price` 0원 이상인 가격으로 변경한다.
+- `menu`는 1개 이상의 `product`로 구성된다.
+- `price`을 변경할 때 변경할 가격으로 메뉴 가격비교 후 더 비쌀 경우 자동으로 메뉴를 숨김 상태로 변경한다.
+
+```mermaid
+stateDiagram-v2
+    table: admin
+    table --> menu: 메뉴 등록
+    menu --> purgomalum: 비속어 검사
+    purgomalum --> new_menu
+    table --> menu : 메뉴 가격 변경    
+    menu --> menu: 가격 비교
+    menu --> hide_menu
+    menu --> change_price_menu
+```
+
 ### 주문테이블
 
 - `order_table` 는 식별자와 이름, 손님 수, 빈 테이블 여부를 가진다.
