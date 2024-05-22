@@ -188,10 +188,12 @@ docker compose -p kitchenpos up -d
 ### 상품
 
 - `product`은 식별자와 이름, 가격을 가진다.
-- `name`은 외부솔루션 `PurgomalumClient`을 통해 비속어 검사를 통과한 이름만 가질 수 있다.
+
+#### 상품 등록
+
 - `price`은 0원 이상만 등록 가능하다.
-- `product`은 `price` 0원 이상인 가격으로 변경한다.
-- `price`을 변경할 때 해당 상품이 속한 메뉴들의 가격 비교 후 메뉴 가격보다 단일 상품들의 총금액이 더 비쌀 경우 해당 메뉴은 자동으로 숨김 상태로 변경된다.
+- `name`은 외부솔루션 `PurgomalumClient`을 통해 비속어 검사를 통과한 이름만 가질 수 있다.
+- `product`의 `price` 0원 이상이여야 한다.
 
 ```mermaid
 stateDiagram-v2
@@ -199,10 +201,20 @@ stateDiagram-v2
     table --> product: 상품 등록
     product --> purgomalum: 비속어 검사
     purgomalum --> new_product
+```
+
+#### 상품의 가격을 수정 흐름
+
+- `product`은 `price` 0원 이상인 가격으로 변경한다.
+- `price`을 변경할 때 해당 상품이 속한 메뉴들의 가격 비교 후 메뉴 가격보다 단일 상품들의 총금액이 더 비쌀 경우 해당 메뉴은 자동으로 숨김 상태로 변경된다.
+
+```mermaid
+stateDiagram-v2
+    table: admin
     table --> product: 상품 가격 변경
-    product --> change_price_product
+    product --> change_price_product: 가격 변경
     product --> menu: 가격 비교
-    menu --> hide_menu
+    menu --> hide_menu: 가격이 더 비쌀 경우 메뉴 숨김처 리
 ```
 
 ### 메뉴그룹
@@ -243,7 +255,7 @@ stateDiagram-v2
 - `order_table` 는 식별자와 이름, 손님 수, 빈 테이블 여부를 가진다.
 - 빈 테이블 `empty table`은 주문을 받을 수 있는 상태를 의미한다. 이 상태의 `NumberOfGuests`는 0이다.
 - 방문 손님 수 `number of guests`는 주문 테이블에 앉아있는 고객 수를 의미한다.
--  주문의 상태가 `completed` 이후 해당 `order_table` 은 다시 `empty table` 상태로 변경된다.
+- 주문의 상태가 `completed` 이후 해당 `order_table` 은 다시 `empty table` 상태로 변경된다.
 
 ```mermaid
 stateDiagram-v2
@@ -279,13 +291,12 @@ sequenceDiagram
     Customer ->> Order: 매장 주문 요청 (상태: waiting)
     Order ->> OrderTable: 빈 테이블인지 확인
     OrderTable -->> Order: 빈 테이블 확인 완료
-    Customer ->> Order: 매장 주문 접수 ( 상태: accepted )
+    Order ->> Customer: 매장 주문 접수 ( 상태: accepted )
     Order ->> OrderTable: 주문승인 테이블 할당 (상태: accepted)
     Order ->> Customer: 주문한 음식 서빙 ( 상태: served)
     Customer ->> Order: 식사 완료 후 주문 완료 (상태: completed)
     Order -->> OrderTable: empty table로 변경
 ```
-
 
 ### 배달 주문
 
