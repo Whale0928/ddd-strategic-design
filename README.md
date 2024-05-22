@@ -243,8 +243,7 @@ stateDiagram-v2
 - `order_table` 는 식별자와 이름, 손님 수, 빈 테이블 여부를 가진다.
 - 빈 테이블 `empty table`은 주문을 받을 수 있는 상태를 의미한다. 이 상태의 `NumberOfGuests`는 0이다.
 - 방문 손님 수 `number of guests`는 주문 테이블에 앉아있는 고객 수를 의미한다.
-- `eat in order` -> `waiting` -> `accepted` -> `served` -> `completed` 순으로 주문이 진행된다.
-    - `completed` 이후 해당 `order_table` 은 다시 `empty table` 상태로 변경된다.
+-  주문의 상태가 `completed` 이후 해당 `order_table` 은 다시 `empty table` 상태로 변경된다.
 
 ```mermaid
 stateDiagram-v2
@@ -275,21 +274,18 @@ stateDiagram-v2
 ```mermaid
 sequenceDiagram
     participant Customer
+    participant Order
     participant OrderTable
-    participant SHOP
-    Customer ->> SHOP: 매장 주문 요청
-    SHOP ->> OrderTable: 빈 테이블인지 확인
-    OrderTable -->> SHOP: 빈 테이블 확인 완료
-    SHOP ->> OrderTable: 매장 주문 등록 (상태: waiting)
-    SHOP -->> Customer: 매장 주문 접수 완료
-    Customer -->> SHOP: 매장 주문 접수 확인
-    SHOP ->> OrderTable: 매장 주문 상태 변경 (상태: accepted)
-    OrderTable ->> Customer: 매장 주문 서빙 완료
-    SHOP ->> OrderTable: 매장 주문 상태 변경 (상태: served)
-    OrderTable -->> SHOP: 서빙 완료 확인
-    SHOP ->> OrderTable: 매장 주문 상태 변경 (상태: completed)
-    OrderTable -->> SHOP: empty table로 변경
+    Customer ->> Order: 매장 주문 요청 (상태: waiting)
+    Order ->> OrderTable: 빈 테이블인지 확인
+    OrderTable -->> Order: 빈 테이블 확인 완료
+    Customer ->> Order: 매장 주문 접수 ( 상태: accepted )
+    Order ->> OrderTable: 주문승인 테이블 할당 (상태: accepted)
+    Order ->> Customer: 주문한 음식 서빙 ( 상태: served)
+    Customer ->> Order: 식사 완료 후 주문 완료 (상태: completed)
+    Order -->> OrderTable: empty table로 변경
 ```
+
 
 ### 배달 주문
 
