@@ -109,7 +109,7 @@ docker compose -p kitchenpos up -d
 | 한글명 | 영문명     | 설명                  |
 |-----|---------|---------------------|
 | 상품  | product | 메뉴를 구성할 수 있는 최소 단위. |
-| 가격  | price   | 0 이상의 상품의 가격.       |
+| 가격  | price   | 0원 이상의 상품의 가격.      |
 | 이름  | name    | 상품의 이름.             |
 
 ### 메뉴 그룹
@@ -155,6 +155,7 @@ docker compose -p kitchenpos up -d
 |-------------|------------------|---------------------|
 | 배달 주문       | delivery order   | 고객이 요청한 배달 주문       |
 | 배달 주소       | delivery address | 고객이 배달 받을 주소.       | 
+| 배달 대행사      | delivery agency  | 배달 주문을 처리하는 대행사.    |
 | 배달 주문 접수 대기 | waiting          | 매장이 주문을 접수하기 전 상태   | 
 | 배달 주문 접수    | accepted         | 배달 주문을 접수한 상태.      |
 | 배달 음식 전달    | served           | 배달 주문을 배달원에게 전달한 상태 | 
@@ -183,3 +184,176 @@ docker compose -p kitchenpos up -d
 | 주문 완료       | completed    | 메뉴를 전달받고 모든 주문이 종료된 상태  |  
 
 ## 모델링
+
+### 상품
+
+- `상품 (product)`은 식별자와 이름, 가격을 가진다.
+
+#### 상품 등록
+
+- `price(가격)`은 0원 이상만 등록 가능하다.
+- `name(상품명)`은 외부솔루션을 통해 비속어 검사를 통과한 이름만 가질 수 있다.
+- `상품 (product)`의 `price(가격)` 0원 이상이여야 한다.
+
+```mermaid
+stateDiagram-v2
+    table: admin
+    table --> product: 상품 등록
+    product --> purgomalum: 비속어 검사
+    purgomalum --> new_product
+```
+
+#### 상품의 가격을 수정
+
+- `product(상품)`은 `price(가격)` 0원 이상인 가격으로 변경 가능하다.
+- `price(가격)`을 변경할 때 해당 상품이 속한 메뉴들의 가격 비교 후 메뉴 가격보다 단일 상품들의 총금액이 더 비쌀 경우 해당 메뉴은 자동으로 숨김 상태로 변경된다.
+
+```mermaid
+stateDiagram-v2
+    table: admin
+    table --> product: 상품 가격 변경
+    product --> change_price_product: 가격 변경
+    product --> menu: 가격 비교
+    menu --> hide_menu: 가격이 더 비쌀 경우 메뉴 숨김 처리
+```
+
+### 메뉴그룹
+
+- `메뉴그룹(menu_group)`은 식별자와 이름을 가진다.
+- `name(메뉴 그룹명)`은 빈값이 아닌 이름만 가질 수 있다.
+
+```mermaid
+stateDiagram-v2
+    table: admin
+    table --> menu_group: 메뉴 그룹 등록
+    menu_group --> new_menu_group
+```
+
+### 메뉴
+
+- `메뉴(menu)`은 식별자와 이름, 가격, `메뉴그룹(menu_group)`, 상태(노출/숨김), 메뉴상품들을 가진다.
+- `메뉴(menu)`는 1개 이상의 `product`로 구성된다.
+- `name(메뉴명)`은 외부솔루션을 통해 비속어 검사를 통과한 이름만 가질 수 있다.
+- `price(가격)`은 0원 이상만 등록 가능하다.
+- `메뉴(menu)`는 0원이상의 가격으로 변경할 수 있다.
+    - 가격이 변경된 `메뉴(menu)`는 가격비교를 다시 진행한 뒤 더 비쌀 경우 가격 변경 후 숨김 상태로 변경된다.
+- `메뉴(menu)`는 노출/숨김으로 상태를 변경할 수 있다.
+
+```mermaid
+stateDiagram-v2
+    table: admin
+    table --> menu: 메뉴 등록
+    menu --> purgomalum: 비속어 검사
+    purgomalum --> new_menu
+    table --> menu: 메뉴 가격 변경
+    menu --> menu: 가격 비교
+    menu --> hide_menu
+    menu --> change_price_menu
+```
+
+### 주문테이블
+
+- `주문테이블(order_table)`은 이름, 방문 손님 수, 주문 가능 상태를 가진다.
+    - 반드시 이름이 있는 `주문테이블(order_table)`만 등록 가능하다.
+- `주문테이블(order_table)`은 처음 등록될 때 빈테이블로 방문 손님 수는 0으로 등록된다.
+- `주문테이블(order_table)`은 빈테이블로 설정/해지할 수 있다.
+    - 완료된 주문이 있는 `주문테이블(order_table)`만 빈테이블을 해지할 수 있다.
+- `주문테이블(order_table)`은 처음 등록될때 방문 손님 수는 0이며 0 이상인 값으로 변경할 수 있다.
+- 주문의 상태가 `completed` 이후 해당 `order_table` 은 다시 `empty table` 상태로 변경된다.
+
+```mermaid
+stateDiagram-v2
+    table: empty_table
+    table --> waiting: 매장 주문 등록
+    waiting --> accepted: 매장 주문 접수
+    accepted --> served: 매장 주문 서빙
+    served --> completed: 매장 주문 완료
+    completed --> table: 빈 테이블으로 변경
+```
+
+### 주문
+
+- `주문(order)`는 주문을 의미한다. 식별자 ,주문상품, 주문방식, 주문상태, 주문일시을 가진다
+    - `주문(order)`의 주문방식에 따라 추가적인 속성을 가질 수 있다.
+- `주문(order)`의 `order type`에 따라 추가적인 값을 가질 수 있다.
+- 아래의 조건을 충족하는 `주문(order)`만 등록 가능하다.
+    - 반드시 주문유형을 선택해야 된다.
+    - `주문(order)` 요청한 `주문 상품 (order line item)`의 메뉴들은 숨김 상태이면 안된다.
+    - 등록된 메뉴 가격과 주문 요청한 주문상품들의 메뉴 가격이 일치해야 된다.
+- `주문 상품 (order line item)` 은 주문된 `menu`와 수량을 의미한다.
+- `주문 상품 (order line item)` 을 가질 수 있으며 수량이 0 미만일 수 있다.
+- `주문(order)`은 처음 등록될 때 대기상태로 등록된다.
+
+### 매장 주문
+
+- `주문(order)` 공통 영역을 모두 충족해야 된다.
+- `매장주문(eat in order)`은 주문유형이 매장인 `주문(order)`이며 추가로 `주문테이블(order_table)` 속성을 갖는다.
+- 아래 조건을 추가로 충족한 `매장주문(eat in order)`만 등록 가능하다.
+    - `주문테이블(order_table)`은 빈테이블이여야 한다.
+    - `주문 상품 (order line item)` 수량은 음수/양수 모두 선택 가능하다.
+        - 수량이 음수인 경우 `주문 상품 (order line item)` 취소를 의미한다.
+- `매장주문(eat in order)` 등록 시 주문상태는 다음 순서대로 변경 가능하다.
+    - 대기 -> 접수 -> 서빙 -> 완료
+    - 주문상태 완료 처리될 때 해당 주문의 주문테이블은 자동으로 빈테이블로 설정된다.
+
+```mermaid
+sequenceDiagram
+    participant Customer
+    participant Order
+    participant OrderTable
+    Customer ->> Order: 매장 주문 요청 (상태: waiting)
+    Order ->> OrderTable: 빈 테이블인지 확인
+    OrderTable -->> Order: 빈 테이블 확인 완료
+    Order ->> Customer: 매장 주문 접수 ( 상태: accepted )
+    Order ->> OrderTable: 주문승인 테이블 할당 (상태: accepted)
+    Order ->> Customer: 주문한 음식 서빙 ( 상태: served)
+    Customer ->> Order: 식사 완료 후 주문 완료 (상태: completed)
+    Order -->> OrderTable: 빈 테이블로 변경(empty table)
+```
+
+### 배달 주문
+
+- `주문(order)` 공통 영역을 모두 충족해야 된다.
+- `배달주문(takeout order)`은 주문유형이 배달인 `주문(order)`이며 추가로 배달주소 속성을 갖는다.
+- 배달 주문이 `accepted`  시 `delivery agency`를 호출한다.
+- 아래 조건을 추가로 충족한 `배달주문(takeout order)`만 등록 가능하다.
+    - 배달주소를 반드시 입력해야 된다.
+    - 주문상품 수량은 반드시 0 이상이여야 한다.
+- `배달주문(takeout order)` 등록 시 주문상태는 다음 순서대로 변경 가능하다.
+    - 대기 -> 접수 -> 서빙 -> 배달중 -> 배달완료 -> 완료
+
+```mermaid
+sequenceDiagram
+    participant Customer
+    participant SHOP
+    participant Rider
+    participant DeliveryAgency
+    Customer ->> SHOP: 배달 주문 요청
+    SHOP -->> Customer: 배달 주문 접수 완료
+    SHOP ->> DeliveryAgency: 배달 요청 (상태: accepted)
+    SHOP ->> Rider: 배달 음식 전달 (상태: served)
+    Rider -->> Customer: 배달 진행 ( 상태: delivering)
+    Rider ->> SHOP: 배달 완료 (상태: delivered)
+    SHOP -->> Customer: 배달 주문 완료 (상태: completed)
+
+```
+
+### 포장 주문
+- 
+
+- `주문(order)` 공통 영역을 모두 충족해야 된다.
+- `포장주문(takeout order)`은 주문유형이 포장인 `주문(order)`이다.
+- 아래 조건을 추가로 충족한 `포장주문(takeout order)`만 등록 가능하다.
+    - 주문상품 수량은 반드시 0 이상이여야 한다.
+- `포장주문(takeout order)` 등록 시 주문상태는 다음 순서대로 변경 가능하다.
+    - 대기 -> 접수 -> 서빙 -> 완료
+
+```mermaid
+sequenceDiagram
+    participant Customer
+    participant SHOP
+    Customer ->> SHOP: 포장 주문 요청
+    SHOP -->> Customer: 포장 주문 접수 완료 (상태: accepted)
+    SHOP ->> Customer: 포장 주문 제공 (상태: served)
+    SHOP -->> Customer: 포장 주문 완료 (상태: completed)
+```
