@@ -325,16 +325,16 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant Customer
-    participant SHOP
+    participant Order
     participant Rider
     participant DeliveryAgency
-    Customer ->> SHOP: 배달 주문 요청
-    SHOP -->> Customer: 배달 주문 접수 완료
-    SHOP ->> DeliveryAgency: 배달 요청 (상태: accepted)
-    SHOP ->> Rider: 배달 음식 전달 (상태: served)
+    Customer ->> Order: 배달 주문 요청
+    Order -->> Customer: 배달 주문 접수 완료
+    Order ->> DeliveryAgency: 배달 요청 (상태: accepted)
+    Order ->> Rider: 배달 음식 전달 (상태: served)
     Rider -->> Customer: 배달 진행 ( 상태: delivering)
-    Rider ->> SHOP: 배달 완료 (상태: delivered)
-    SHOP -->> Customer: 배달 주문 완료 (상태: completed)
+    Rider ->> Order: 배달 완료 (상태: delivered)
+    Order -->> Customer: 배달 주문 완료 (상태: completed)
 
 ```
 
@@ -351,9 +351,9 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant Customer
-    participant SHOP
-    Customer ->> SHOP: 포장 주문 요청
-    SHOP -->> Customer: 포장 주문 접수 완료 (상태: accepted)
-    SHOP ->> Customer: 포장 주문 제공 (상태: served)
-    SHOP -->> Customer: 포장 주문 완료 (상태: completed)
+    participant Order
+    Customer ->> Order: 포장 주문 요청
+    Order -->> Customer: 포장 주문 접수 완료 (상태: accepted)
+    Order ->> Customer: 포장 주문 제공 (상태: served)
+    Order -->> Customer: 포장 주문 완료 (상태: completed)
 ```
