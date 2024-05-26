@@ -1,4 +1,4 @@
-package kitchenpos.orders.domain;
+package kitchenpos.eatInOrder.domain;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -12,9 +12,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
-import kitchenpos.orders.domain.constant.OrderStatus;
-import kitchenpos.orders.domain.constant.OrderType;
-import kitchenpos.orders.eatin.domain.OrderTable;
+import kitchenpos.eatInOrder.domain.constant.OrderType;
+import kitchenpos.eatInOrder.domain.constant.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;

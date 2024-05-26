@@ -5,7 +5,7 @@ import kitchenpos.menu.domain.MenuProduct;
 import kitchenpos.menu.infra.MenuRepository;
 import kitchenpos.product.domain.Product;
 import kitchenpos.product.infra.ProductRepository;
-import kitchenpos.global.external.PurgomalumClient;
+import kitchenpos.global.infra.PurgomalumClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
