@@ -1,7 +1,7 @@
 package kitchenpos.orders.infra;
 
 import kitchenpos.orders.domain.Order;
-import kitchenpos.orders.domain.OrderTable;
+import kitchenpos.orders.eatin.domain.OrderTable;
 import kitchenpos.orders.domain.constant.OrderStatus;
 
 import java.util.List;

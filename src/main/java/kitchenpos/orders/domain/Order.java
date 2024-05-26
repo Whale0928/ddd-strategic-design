@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import kitchenpos.orders.domain.constant.OrderStatus;
 import kitchenpos.orders.domain.constant.OrderType;
+import kitchenpos.orders.eatin.domain.OrderTable;
 
 import java.time.LocalDateTime;
 import java.util.List;

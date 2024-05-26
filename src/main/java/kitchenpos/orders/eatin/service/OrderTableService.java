@@ -1,9 +1,9 @@
-package kitchenpos.orders.application;
+package kitchenpos.orders.eatin.service;
 
-import kitchenpos.orders.infra.OrderRepository;
 import kitchenpos.orders.domain.constant.OrderStatus;
-import kitchenpos.orders.domain.OrderTable;
-import kitchenpos.orders.infra.OrderTableRepository;
+import kitchenpos.orders.eatin.domain.OrderTable;
+import kitchenpos.orders.eatin.infra.OrderTableRepository;
+import kitchenpos.orders.infra.OrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +17,10 @@ public class OrderTableService {
     private final OrderTableRepository orderTableRepository;
     private final OrderRepository orderRepository;
 
-    public OrderTableService(final OrderTableRepository orderTableRepository, final OrderRepository orderRepository) {
+    public OrderTableService(
+            final OrderTableRepository orderTableRepository,
+            final OrderRepository orderRepository
+    ) {
         this.orderTableRepository = orderTableRepository;
         this.orderRepository = orderRepository;
     }
@@ -39,7 +42,7 @@ public class OrderTableService {
     @Transactional
     public OrderTable sit(final UUID orderTableId) {
         final OrderTable orderTable = orderTableRepository.findById(orderTableId)
-            .orElseThrow(NoSuchElementException::new);
+                .orElseThrow(NoSuchElementException::new);
         orderTable.setOccupied(true);
         return orderTable;
     }
@@ -47,7 +50,7 @@ public class OrderTableService {
     @Transactional
     public OrderTable clear(final UUID orderTableId) {
         final OrderTable orderTable = orderTableRepository.findById(orderTableId)
-            .orElseThrow(NoSuchElementException::new);
+                .orElseThrow(NoSuchElementException::new);
         if (orderRepository.existsByOrderTableAndStatusNot(orderTable, OrderStatus.COMPLETED)) {
             throw new IllegalStateException();
         }
@@ -63,7 +66,7 @@ public class OrderTableService {
             throw new IllegalArgumentException();
         }
         final OrderTable orderTable = orderTableRepository.findById(orderTableId)
-            .orElseThrow(NoSuchElementException::new);
+                .orElseThrow(NoSuchElementException::new);
         if (!orderTable.isOccupied()) {
             throw new IllegalStateException();
         }

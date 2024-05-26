@@ -6,10 +6,10 @@ import kitchenpos.orders.domain.Order;
 import kitchenpos.orders.domain.OrderLineItem;
 import kitchenpos.orders.infra.OrderRepository;
 import kitchenpos.orders.domain.constant.OrderStatus;
-import kitchenpos.orders.domain.OrderTable;
-import kitchenpos.orders.infra.OrderTableRepository;
+import kitchenpos.orders.eatin.domain.OrderTable;
+import kitchenpos.orders.eatin.infra.OrderTableRepository;
 import kitchenpos.orders.domain.constant.OrderType;
-import kitchenpos.orders.external.KitchenridersClient;
+import kitchenpos.orders.delivery.external.KitchenridersClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
