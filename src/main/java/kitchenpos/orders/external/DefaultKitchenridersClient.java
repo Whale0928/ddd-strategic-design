@@ -1,4 +1,4 @@
-package kitchenpos.orders.infra;
+package kitchenpos.orders.external;
 
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,7 @@
 package kitchenpos.application;
 
 import kitchenpos.orders.domain.Order;
-import kitchenpos.orders.domain.OrderRepository;
+import kitchenpos.orders.infra.OrderRepository;
 import kitchenpos.orders.domain.constant.OrderStatus;
 import kitchenpos.orders.domain.OrderTable;
 
